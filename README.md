@@ -81,7 +81,69 @@ Python packages:
  * `flask`
  * `PyYAML`
  * `Pillow`
- 
+
+## Docker
+
+A pre-built Docker image is available at `ghcr.io/tobiaspankner/ycast-cache`.
+
+### With docker run
+
+```
+docker run -d \
+  --name ycast \
+  -p 80:80 \
+  -v ycast-data:/root/.ycast \
+  ghcr.io/tobiaspankner/ycast-cache:latest
+```
+
+If you have custom stations, mount a `stations.yml` and pass the `-c` flag:
+
+```
+docker run -d \
+  --name ycast \
+  -p 80:80 \
+  -v ycast-data:/root/.ycast \
+  -v ./stations.yml:/stations.yml:ro \
+  ghcr.io/tobiaspankner/ycast-cache:latest \
+  -c /stations.yml
+```
+
+### With docker compose
+
+Create a `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  ycast:
+    image: ghcr.io/tobiaspankner/ycast-cache:latest
+    container_name: ycast
+    ports:
+      - "80:80"
+    volumes:
+      - ycast-data:/root/.ycast
+    restart: unless-stopped
+
+volumes:
+  ycast-data:
+```
+
+Then run:
+
+```
+docker compose up -d
+```
+
+If you have custom stations, mount your `stations.yml` and pass the config flag:
+
+```yaml
+volumes:
+  - ycast-data:/root/.ycast
+  - ./stations.yml:/stations.yml:ro
+command: ["-c", "/stations.yml"]
+```
+
 ## Usage
 
 YCast really does not need much computing power nor bandwidth, i.e. you can run it on a low-spec RISC machine like a Raspberry Pi or a home router.

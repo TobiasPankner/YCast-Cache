@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  ycast:
+    image: ghcr.io/tobiaspankner/ycast-cache:latest
+    container_name: ycast
+    ports:
+      - "80:80"
+    volumes:
+      - ycast-data:/root/.ycast
+    restart: unless-stopped
+
+volumes:
+  ycast-data:
