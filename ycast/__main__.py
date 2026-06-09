@@ -2,12 +2,18 @@
 
 import argparse
 import logging
+import os
 import sys
 
 from ycast import __version__
 from ycast import server
 
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
+
+
+def is_debug_enabled():
+    debug_env = os.environ.get('YCAST_DEBUG', '').lower()
+    return debug_env in ('1', 'true', 'yes', 'on')
 
 
 def launch_server():
@@ -18,7 +24,7 @@ def launch_server():
     parser.add_argument('-d', action='store_true', dest='debug', help='Enable debug logging')
     arguments = parser.parse_args()
     logging.info("YCast (%s) server starting", __version__)
-    if arguments.debug:
+    if arguments.debug or is_debug_enabled():
         logging.getLogger().setLevel(logging.DEBUG)
         logging.debug("Debug logging enabled")
     else:

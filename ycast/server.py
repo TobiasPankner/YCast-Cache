@@ -28,6 +28,16 @@ my_stations_enabled = False
 app = Flask(__name__)
 
 
+@app.before_request
+def log_request():
+    if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
+        logging.debug("Request: %s %s", request.method, request.url)
+        for header, value in request.headers:
+            logging.debug("  Header: %s: %s", header, value)
+        if request.data:
+            logging.debug("  Body: %s", request.data.decode('utf-8', errors='replace'))
+
+
 def revalidate_cache():
     logging.info("Starting cache revalidation")
     session = requests_cache.CachedSession('ycast_cache', backend='memory')
@@ -318,14 +328,20 @@ def get_station_icon():
     station = get_station_by_id(stationid)
     if not station:
         logging.error("Could not get station with id '%s'", stationid)
-        abort(404)
+        return _dummy_icon_response()
     if not hasattr(station, 'icon') or not station.icon:
         logging.warning("No icon information found for station with id '%s'", stationid)
-        abort(404)
+        return _dummy_icon_response()
     station_icon = station_icons.get_icon(station)
     if not station_icon:
         logging.error("Could not get station icon for station with id '%s'", stationid)
-        abort(404)
+        return _dummy_icon_response()
     response = make_response(station_icon)
+    response.headers.set('Content-Type', 'image/jpeg')
+    return response
+
+
+def _dummy_icon_response():
+    response = make_response(station_icons.get_dummy_icon())
     response.headers.set('Content-Type', 'image/jpeg')
     return response

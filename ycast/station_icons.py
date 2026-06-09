@@ -11,6 +11,19 @@ from ycast import __version__
 MAX_SIZE = 290
 CACHE_NAME = 'icons'
 
+_dummy_icon = None
+
+
+def get_dummy_icon():
+    global _dummy_icon
+    if _dummy_icon:
+        return _dummy_icon
+    image = Image.new('RGB', (290, 290), color=(60, 60, 60))
+    buf = io.BytesIO()
+    image.save(buf, format='JPEG')
+    _dummy_icon = buf.getvalue()
+    return _dummy_icon
+
 
 def get_icon(station):
     cache_path = generic.get_cache_path(CACHE_NAME)
@@ -35,7 +48,7 @@ def get_icon(station):
                 ratio = MAX_SIZE / image.size[0]
             else:
                 ratio = MAX_SIZE / image.size[1]
-            image = image.resize((int(image.size[0] * ratio), int(image.size[1] * ratio)), Image.ANTIALIAS)
+            image = image.resize((int(image.size[0] * ratio), int(image.size[1] * ratio)), Image.LANCZOS)
             image.save(station_icon_file, format="JPEG")
         except Exception as e:
             logging.error("Station icon conversion error (%s)", e)

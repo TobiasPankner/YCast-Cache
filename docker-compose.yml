@@ -8,6 +8,8 @@ services:
       - "80:80"
     volumes:
       - ycast-data:/root/.ycast
+    environment:
+      - YCAST_DEBUG=false
     restart: unless-stopped
 
 volumes:
